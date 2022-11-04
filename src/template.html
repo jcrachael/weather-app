@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= htmlWebpackPlugin.options.title %></title>
+</head>
+<body>
+    <div class="container">
+    
+    <header>
+        <h1>My Weather App</h1>
+    </header>
+
+    <main>
+        <form>
+            <div class="form-control">
+            <label for="city">Enter a city</label>
+            <input type="text" name="city" id="city" placeholder="e.g. Brussels">
+        </div>
+        <div class="form-control">
+            <legend>Select unit of measurement</legend>
+            <input type="radio" name="units" id="cels" value="Celsius"><label for="cels">Celsius</label>
+            <input type="radio" name="units" id="fahr" value="Fahrenheit"><label for="fahr">Fahrenheit</label>
+        </div>
+        <div class="form-control">
+            <button type="submit" id="submit">Get weather</button>
+            <button type="reset" id="clear">Clear</button>
+        </div>
+        </form>
+
+        <section class="hidden" id="panel">
+
+            <h2 id="cityname"><!--Weather for City--></h2>
+
+            <div class="row">
+                <span class="label">Current temperature:</span>
+                <span class="data" id="current"></span>
+            </div>
+
+            <div class="row">
+                <span class="label">Feels like:</span>
+                <span class="data" id="feels-like"><!--feels like temp--></span>
+            </div>
+
+            <div class="row">
+                <span class="label">Today's max:</span>
+                <span class="data" id="max"><!--max temp--></span>
+            </div>
+
+            <div class="row">
+                <span class="label">Today's min:</span>
+                <span class="data" id="min"><!--min temp--></span>
+            </div>
+
+        </section>
+    </main>
+    
+    <footer>
+        Copyright © Rachael Cole 2022. This project is&nbsp;<a href="https://github.com/jcrachael/weather-app/">open source</a>.
+    </footer>  
+    </div>
+</body>
+</html>

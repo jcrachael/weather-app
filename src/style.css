@@ -1,0 +1,24 @@
+
+form {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-control {
+    margin: 10px 0px;
+}
+
+.hidden {
+    display: none;
+
+}
+
+
+.row {
+    padding: 10px;
+}
+
+footer {
+    position: fixed;
+    bottom: 0;
+}
