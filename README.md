@@ -8,6 +8,7 @@ Projcet sourced from [The Odin Project JavaScript course](https://www.theodinpro
 
 
 ## To-do
+* Form validation for city name input
 * UI design
 * CSS styling and animations
 
