@@ -1,19 +1,7 @@
-import style from './style.css';
-import getWeather from './getWeather'
+import style from "./style.css";
+import { form } from "./form";
 
-// On form submit, display the weather
-const submitBtn = document.getElementById('submit');
-submitBtn.addEventListener('click', function(e) {
-    e.preventDefault();
-    let cityInput = document.getElementById('city').value;
-    getWeather(cityInput);
-})
-
-// On clear, remove the previous panel
-const clearBtn = document.getElementById('clear');
-clearBtn.addEventListener('click', function() {
-    const panel = document.getElementById('panel');
-    if (panel) {
-        panel.classList.add('hidden');
-    }
-})
+const Form = new form();
+let newForm = Form.build();
+const main = document.querySelector("main");
+main.appendChild(newForm);
