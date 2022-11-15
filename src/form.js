@@ -3,28 +3,36 @@ import { weatherDisplay } from "./weatherDisplay";
 function form() {
   // Event handler for submit button
   function submitEventHandler() {
-    const WeatherDisplay = new weatherDisplay();
-    const panel = document.getElementById("panel");
-    if (panel) {
-      WeatherDisplay.clearDisplay();
+    if (isValid() === true) {
+      const WeatherDisplay = new weatherDisplay();
+      const panel = document.getElementById("panel");
+      if (panel) {
+        WeatherDisplay.clearDisplay();
+      }
+      WeatherDisplay.getWeather();
+    } else {
+      return;
     }
-
-    WeatherDisplay.build();
-    WeatherDisplay.getWeather();
-
-    WeatherDisplay.updateDisplay();
   }
   // Event handler for reset button
   function resetEventListener() {
-    const panel = document.getElementById("panel");
+    const main = document.querySelector("main");
+    const panel = document.querySelector("section");
+    const error = document.getElementById("error-container");
     if (panel) {
-      panel.classList.add("hidden");
+      main.removeChild(panel);
+    }
+    if (error) {
+      main.removeChild(error);
     }
   }
 
   // Build the form
   function build() {
     const form = document.createElement("form");
+    const header = document.createElement("h4");
+    header.innerText = "Get weather";
+    form.appendChild(header);
     const formControl = document.createElement("div");
     formControl.classList.add("form-control");
     form.appendChild(formControl);
@@ -37,7 +45,7 @@ function form() {
     inputCity.setAttribute("name", "city");
     inputCity.setAttribute("id", "city");
     inputCity.setAttribute("placeholder", "e.g. Brussels");
-    inputCity.setAttribute("required", "true");
+    inputCity.required = true;
     formControl.appendChild(inputCity);
 
     const formControl2 = document.createElement("div");
@@ -49,7 +57,7 @@ function form() {
     radioCels.setAttribute("name", "units");
     radioCels.setAttribute("id", "cels");
     radioCels.setAttribute("value", "Celsius");
-    radioCels.setAttribute("required", "true");
+    radioCels.required = true;
     formControl2.appendChild(radioCels);
     const labelCels = document.createElement("label");
     labelCels.setAttribute("for", "cels");
@@ -88,6 +96,32 @@ function form() {
     formControl3.appendChild(reset);
 
     return form;
+  }
+
+  // Validates the form input
+  function isValid() {
+    let cityValue = document.getElementById("city").value;
+    let unitValue;
+    let radioCels = document.getElementById("cels");
+    let fahrCels = document.getElementById("fahr");
+    const regex = /^([^0-9]*)$/g;
+
+    if (radioCels.checked) {
+      unitValue = "c";
+    } else if (fahrCels.checked) {
+      unitValue = "f";
+    }
+    if (cityValue == "" || unitValue == undefined) {
+      let errorMsg = "Please fill in all fields";
+      console.error(errorMsg);
+      return errorMsg;
+    }
+    if (!regex.test(cityValue)) {
+      let errorMsg = "City names cannot contain numbers";
+      console.error(errorMsg);
+      return errorMsg;
+    }
+    return true;
   }
 
   return {

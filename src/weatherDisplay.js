@@ -2,6 +2,7 @@ import { Weather } from "./Weather";
 
 function weatherDisplay() {
   const MyWeather = new Weather();
+  const MyLocalWeather = new Weather();
 
   function build() {
     const main = document.querySelector("main");
@@ -33,6 +34,26 @@ function weatherDisplay() {
     feelsLikeData.classList.add("data");
     feelsLikeData.setAttribute("id", "feels-like");
     row2.appendChild(feelsLikeData);
+
+    const row6 = document.createElement("div");
+    row6.classList.add("row");
+    container.appendChild(row6);
+    const descLabel = document.createElement("span");
+    descLabel.classList.add("label");
+    descLabel.innerText = "Description:";
+    row6.appendChild(descLabel);
+    const dataContainer2 = document.createElement("span");
+    dataContainer2.classList.add("data");
+    row6.appendChild(dataContainer2);
+    const shortDescData = document.createElement("span");
+
+    shortDescData.setAttribute("id", "shortDescription");
+    dataContainer2.appendChild(shortDescData);
+    const longDescData = document.createElement("span");
+
+    longDescData.setAttribute("id", "longDescription");
+    dataContainer2.appendChild(longDescData);
+
     const row3 = document.createElement("div");
     row3.classList.add("row");
     container.appendChild(row3);
@@ -66,21 +87,7 @@ function weatherDisplay() {
     cloudData.classList.add("data");
     cloudData.setAttribute("id", "clouds");
     row5.appendChild(cloudData);
-    const row6 = document.createElement("div");
-    row6.classList.add("row");
-    container.appendChild(row6);
-    const descLabel = document.createElement("span");
-    descLabel.classList.add("label");
-    descLabel.innerText = "Description:";
-    row6.appendChild(descLabel);
-    const shortDescData = document.createElement("span");
-    shortDescData.classList.add("data");
-    shortDescData.setAttribute("id", "shortDescription");
-    row6.appendChild(shortDescData);
-    const longDescData = document.createElement("span");
-    longDescData.classList.add("data");
-    longDescData.setAttribute("id", "longDescription");
-    row6.appendChild(longDescData);
+
     const row7 = document.createElement("div");
     row7.classList.add("row");
     container.appendChild(row7);
@@ -88,25 +95,68 @@ function weatherDisplay() {
     windLabel.classList.add("label");
     windLabel.innerText = "Wind:";
     row7.appendChild(windLabel);
+    const dataContainer = document.createElement("span");
+    dataContainer.classList.add("data");
+    row7.appendChild(dataContainer);
     const windSpeedData = document.createElement("span");
-    windSpeedData.classList.add("data");
     windSpeedData.setAttribute("id", "windSpeed");
-    row7.appendChild(windSpeedData);
+    dataContainer.appendChild(windSpeedData);
     const windDirData = document.createElement("span");
-    windDirData.classList.add("data");
+
     windDirData.setAttribute("id", "windDir");
-    row7.appendChild(windDirData);
+    dataContainer.appendChild(windDirData);
     const windGustData = document.createElement("span");
-    windGustData.classList.add("data");
+
     windGustData.setAttribute("id", "windGust");
-    row7.appendChild(windGustData);
+    dataContainer.appendChild(windGustData);
+  }
+
+  function displayError(message) {
+    const main = document.querySelector("main");
+    removeError();
+    const container = document.createElement("div");
+    container.setAttribute("id", "error-container");
+    main.appendChild(container);
+    const errorTitle = document.createElement("p");
+    errorTitle.classList.add("error-title");
+    errorTitle.innerText = "Error";
+    container.appendChild(errorTitle);
+    const errorMsg = document.createElement("p");
+    errorMsg.innerText = message;
+    container.appendChild(errorMsg);
+  }
+
+  function removeError() {
+    const main = document.querySelector("main");
+    const error = document.getElementById("error-container");
+    if (error) {
+      main.removeChild(error);
+    }
+  }
+
+  function displayLoader() {
+    const main = document.querySelector("main");
+    const loader = document.createElement("div");
+    clearDisplay();
+    removeError();
+    loader.setAttribute("id", "loading");
+    main.appendChild(loader);
+  }
+
+  function hideLoader() {
+    const main = document.querySelector("main");
+    const loader = document.getElementById("loading");
+    main.removeChild(loader);
   }
 
   function getWeather() {
+    displayLoader();
+
     // Units:
     // For temperature in Fahrenheit use units=imperial
     // For temperature in Celsius use units=metric
     let units = "metric"; // Celsius by default
+
     let deg = "C";
     let speed = "m/s";
     let chosencity = document.getElementById("city").value;
@@ -137,88 +187,102 @@ function weatherDisplay() {
         return response.json();
       }) // get the response as a JSON object
       .then(function (response) {
-        let cityname = response.name;
-        let feelsLikeTemp = response.main.feels_like;
-        let currentTemp = response.main.temp;
-        let humidity = response.main.humidity;
-        let pressure = response.main.pressure;
-        let cloudCoverage = response.clouds.all;
-        let shortDescription = response.weather[0]["main"];
-        let longDescription = response.weather[0]["description"];
-        let windDir = response.wind.deg;
-        let windSpeed = response.wind.speed;
-        let windGust = response.wind.gust;
-        let pressureRate;
-        let windDirCardinal;
-        let speedMultiplier;
-        // get units
-        if (units === "metric") {
-          deg = "C";
-          speed = "km/h";
-          speedMultiplier = 3.6;
-        } else if (units === "imperial") {
-          deg = "F";
-          speed = "m.p.h";
-          speedMultiplier = 1;
+        hideLoader();
+
+        if (response.cod === "404") {
+          clearDisplay();
+          let errorMsg = response.message;
+          displayError(errorMsg);
+          return errorMsg;
         }
-        // get pressure
-        if (pressure > 1020) {
-          pressureRate = "High";
-        } else if (pressure > 989 && pressure < 1020) {
-          pressureRate = "Medium";
-        } else {
-          pressureRate = "Low";
+
+        if (response.cod === 200) {
+          let cityname = response.name;
+          let feelsLikeTemp = response.main.feels_like;
+          let currentTemp = response.main.temp;
+          let humidity = response.main.humidity;
+          let pressure = response.main.pressure;
+          let cloudCoverage = response.clouds.all;
+          let shortDescription = response.weather[0]["main"];
+          let longDescription = response.weather[0]["description"];
+          let windDir = response.wind.deg;
+          let windSpeed = response.wind.speed;
+          let windGust = response.wind.gust;
+          let pressureRate;
+          let windDirCardinal;
+          let speedMultiplier;
+
+          // get units
+          if (units === "metric") {
+            deg = "C";
+            speed = "km/h";
+            speedMultiplier = 3.6;
+          } else if (units === "imperial") {
+            deg = "F";
+            speed = "m.p.h";
+            speedMultiplier = 1;
+          }
+          // get pressure
+          if (pressure > 1020) {
+            pressureRate = "High";
+          } else if (pressure > 989 && pressure < 1020) {
+            pressureRate = "Medium";
+          } else {
+            pressureRate = "Low";
+          }
+          // get wind direction
+          if (windDir > 348 || windDir <= 11) {
+            windDirCardinal = "N";
+          } else if (windDir >= 11 && windDir <= 33) {
+            windDirCardinal = "NNE";
+          } else if (windDir > 34 && windDir < 56) {
+            windDirCardinal = "NE";
+          } else if (windDir >= 56 && windDir < 79) {
+            windDirCardinal = "ENE";
+          } else if (windDir >= 79 && windDir < 101) {
+            windDirCardinal = "E";
+          } else if (windDir >= 101 && windDir <= 123) {
+            windDirCardinal = "ESE";
+          } else if (windDir >= 124 && windDir < 146) {
+            windDirCardinal = "SE";
+          } else if (windDir >= 146 && windDir <= 168) {
+            windDirCardinal = "SSE";
+          } else if (windDir >= 169 && windDir < 191) {
+            windDirCardinal = "S";
+          } else if (windDir >= 191 && windDir <= 213) {
+            windDir = "SSW";
+          } else if (windDir > 213 && windDir < 236) {
+            windDirCardinal = "SW";
+          } else if (windDir >= 236 && windDir <= 258) {
+            windDirCardinal = "WSW";
+          } else if (windDir >= 259 && windDir <= 280) {
+            windDirCardinal = "W";
+          } else if (windDir >= 281 && windDir <= 303) {
+            windDirCardinal = "WNW";
+          } else if (windDir >= 304 && windDir <= 325) {
+            windDirCardinal = "NW";
+          } else if (windDir >= 326 && windDir <= 348) {
+            windDirCardinal = "NNW";
+          }
+          // Set the properties of MyWeather object
+          MyWeather.name = cityname;
+          MyWeather.country = response.sys.country;
+          MyWeather.deg = deg;
+          MyWeather.feelsLikeTemp = feelsLikeTemp;
+          MyWeather.currentTemp = currentTemp;
+          MyWeather.humidity = humidity;
+          MyWeather.pressure = pressureRate;
+          MyWeather.cloud = cloudCoverage;
+          MyWeather.shortDesc = shortDescription;
+          MyWeather.longDesc = longDescription;
+          MyWeather.windDir = windDirCardinal;
+          MyWeather.windSpeed = windSpeed;
+          MyWeather.windGust = windGust;
+          MyWeather.speed = speed;
+          MyWeather.speedMultiplier = speedMultiplier;
+          build();
+          updateDisplay();
         }
-        // get wind direction
-        if (windDir > 348 || windDir <= 11) {
-          windDirCardinal = "N";
-        } else if (windDir >= 11 && windDir <= 33) {
-          windDirCardinal = "NNE";
-        } else if (windDir > 34 && windDir < 56) {
-          windDirCardinal = "NE";
-        } else if (windDir >= 56 && windDir < 79) {
-          windDirCardinal = "ENE";
-        } else if (windDir >= 79 && windDir < 101) {
-          windDirCardinal = "E";
-        } else if (windDir >= 101 && windDir <= 123) {
-          windDirCardinal = "ESE";
-        } else if (windDir >= 124 && windDir < 146) {
-          windDirCardinal = "SE";
-        } else if (windDir >= 146 && windDir <= 168) {
-          windDirCardinal = "SSE";
-        } else if (windDir >= 169 && windDir < 191) {
-          windDirCardinal = "S";
-        } else if (windDir >= 191 && windDir <= 213) {
-          windDir = "SSW";
-        } else if (windDir > 213 && windDir < 236) {
-          windDirCardinal = "SW";
-        } else if (windDir >= 236 && windDir <= 258) {
-          windDirCardinal = "WSW";
-        } else if (windDir >= 259 && windDir <= 280) {
-          windDirCardinal = "W";
-        } else if (windDir >= 281 && windDir <= 303) {
-          windDirCardinal = "WNW";
-        } else if (windDir >= 304 && windDir <= 325) {
-          windDirCardinal = "NW";
-        } else if (windDir >= 326 && windDir <= 348) {
-          windDirCardinal = "NNW";
-        }
-        // Set the properties of MyWeather object
-        MyWeather.name = cityname;
-        MyWeather.deg = deg;
-        MyWeather.feelsLikeTemp = feelsLikeTemp;
-        MyWeather.currentTemp = currentTemp;
-        MyWeather.humidity = humidity;
-        MyWeather.pressure = pressureRate;
-        MyWeather.cloud = cloudCoverage;
-        MyWeather.shortDesc = shortDescription;
-        MyWeather.longDesc = longDescription;
-        MyWeather.windDir = windDirCardinal;
-        MyWeather.windSpeed = windSpeed;
-        MyWeather.windGust = windGust;
-        MyWeather.speed = speed;
-        MyWeather.speedMultiplier = speedMultiplier;
-        updateDisplay();
       })
       .catch(function (error) {
         console.error(error);
@@ -228,7 +292,9 @@ function weatherDisplay() {
   function clearDisplay() {
     const main = document.querySelector("main");
     const panel = document.querySelector("section");
-    main.removeChild(panel);
+    if (panel) {
+      main.removeChild(panel);
+    }
   }
 
   function updateDisplay() {
@@ -248,7 +314,7 @@ function weatherDisplay() {
 
     // Display the values to the screen
     panel.classList.remove("hidden");
-    datacityname.innerText = `Weather for ${MyWeather.name}`;
+    datacityname.innerText = `Weather for ${MyWeather.name}, ${MyWeather.country}`;
     current.innerText = `${MyWeather.currentTemp}\u00B0 ${MyWeather.deg}`;
     feelsLike.innerText = `${MyWeather.feelsLikeTemp}\u00B0 ${MyWeather.deg}`;
     humidityEl.innerText = `${MyWeather.humidity}%`;
@@ -256,12 +322,12 @@ function weatherDisplay() {
     cloudCoverageEl.innerText = `${MyWeather.cloud}%`;
     shortDescEl.innerText = `${MyWeather.shortDesc}: `;
     longDescEl.innerText = `${MyWeather.longDesc}`;
-    windDirEl.innerText = `${MyWeather.windDir}; `;
+    windDirEl.innerText = `${MyWeather.windDir}`;
     windSpeedEl.innerText = `${Math.round(
       MyWeather.windSpeed * MyWeather.speedMultiplier
     )} ${MyWeather.speed} `;
     if (MyWeather.windGust != null) {
-      windGustEl.innerText = `gusts of up to ${Math.round(
+      windGustEl.innerText = `; gusts of up to ${Math.round(
         MyWeather.windGust * MyWeather.speedMultiplier
       )} ${MyWeather.speed}`;
     }
@@ -272,7 +338,8 @@ function weatherDisplay() {
     getWeather: getWeather,
     updateDisplay: updateDisplay,
     clearDisplay: clearDisplay,
-    MyWeather: MyWeather
+    MyWeather: MyWeather,
+    MyLocalWeather: MyLocalWeather
   };
 }
 
